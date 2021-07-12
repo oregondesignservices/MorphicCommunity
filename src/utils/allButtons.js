@@ -1,4 +1,3 @@
-// This file is auto-generated from https://docs.google.com/spreadsheets/d/1F6Ap2czNsMw-KrmRjvgoELh1DzcZaqnHNQvpiUhD3LY.
 
 export const allButtons = {
     abc_news: {
@@ -58,6 +57,20 @@ export const allButtons = {
             color: "blue",
             image_url: "amazonmusic",
             url: "https://music.amazon.com/home"
+        }
+    },
+    amazon_photos: {
+        kind: "link",
+        is_primary: true,
+        data: {
+            catalogLabel: "Amazon Prime Photos"
+        },
+        configuration: {
+            subkind: "photo",
+            label: "Photos",
+            color: "blue",
+            url: "https://www.amazon.com/photos/",
+            description: "Opens Amazon Prime Photos."
         }
     },
     aol_mail: {
@@ -354,6 +367,20 @@ export const allButtons = {
             image_url: "firefox"
         }
     },
+    flickr: {
+        kind: "link",
+        is_primary: true,
+        data: {
+            catalogLabel: "Flickr"
+        },
+        configuration: {
+            subkind: "photo",
+            label: "Photos",
+            color: "blue",
+            url: "https://flickr.com",
+            description: "Opens Flickr."
+        }
+    },
     forbes: {
         kind: "link",
         is_primary: false,
@@ -440,9 +467,12 @@ export const allButtons = {
     google_photos: {
         kind: "link",
         is_primary: true,
+        data: {
+            catalogLabel: "Google Photos"
+        },
         configuration: {
-            category: "photo",
-            label: "Google Photos",
+            subkind: "photo",
+            label: "Photos",
             color: "blue",
             url: "https://photos.google.com",
             description: "Opens Google Photos."
@@ -565,9 +595,9 @@ export const allButtons = {
         is_primary: true,
         configuration: {
             subkind: "meeting",
-            label: "Jitsi",
+            label: "Jitsi - Web",
             color: "blue",
-            url: "https://meet.jit.si/",
+            url: "https://meet.jit.si/$jitsiName",
             description: "Join a meeting room in Jitsi."
         }
     },
@@ -819,6 +849,17 @@ export const allButtons = {
             description: "Allows you to create a button that opens a Web Page."
         }
     },
+    opera_app: {
+        kind: "application",
+        is_primary: null,
+        configuration: {
+            subkind: "app",
+            label: "Opera",
+            exe: "opera",
+            color: "blue",
+            image_url: "opera"
+        }
+    },
     outlook_com_calendar: {
         kind: "link",
         is_primary: true,
@@ -840,17 +881,6 @@ export const allButtons = {
             image_url: "outlook",
             url: "https://outlook.live.com/mail/0/inbox",
             description: "Opens the Outlook.com inbox in a browser."
-        }
-    },
-    opera_app: {
-        kind: "application",
-        is_primary: null,
-        configuration: {
-            subkind: "app",
-            label: "Opera",
-            exe: "opera",
-            color: "blue",
-            image_url: "opera"
         }
     },
     pandora: {
@@ -953,6 +983,25 @@ export const allButtons = {
             url: "skype:$skypeId?$skypeAction"
         }
     },
+    snip: {
+        kind: "action",
+        is_primary: true,
+        data: {
+            visual: {
+                type: "multiButton",
+                buttons: [
+                    "Copy"
+                ]
+            }
+        },
+        configuration: {
+            subkind: "action",
+            label: "Snip",
+            description: "Copy a region of your screen to the clipboard",
+            identifier: "snip",
+            color: "blue"
+        }
+    },
     soundcloud: {
         kind: "link",
         is_primary: false,
@@ -973,25 +1022,6 @@ export const allButtons = {
             color: "blue",
             image_url: "spotify",
             url: "https://open.spotify.com/"
-        }
-    },
-    snip: {
-        kind: "action",
-        is_primary: true,
-        data: {
-            visual: {
-                type: "multiButton",
-                buttons: [
-                    "Copy"
-                ]
-            }
-        },
-        configuration: {
-            subkind: "action",
-            label: "Snip",
-            description: "Copy a region of your screen to the clipboard",
-            identifier: "snip",
-            color: "blue"
         }
     },
     target: {

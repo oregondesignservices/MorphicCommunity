@@ -43,6 +43,7 @@ These are then used to create input fields in the editor dialog.
  * Function that checks for problems.
  * @callback checkFunc
  * @param {String} value The value to check.
+ * @param {Object} options The options for the check.
  * @param {BarItem} barItem The bar item being checked.
  * @param {String} paramKey The parameter key.
  * @return {Promise<CheckResult>} Resolves when complete.
@@ -120,6 +121,23 @@ export const allParameters = {
         checks: {
             urlWorking: {}
         }
+    },
+    jitsiName: {
+        label: "Room name",
+        validation: {
+            regex: {
+                // Check the room name doesn't contain certain characters (rule taken from the jitsi website).
+                pattern: /^(https?:\/\/meet.jit.si\/)?[^?&:"'%#]+$/,
+                message: "The room name should not contain ?, &, :, \", ', %, or #"
+            }
+        },
+        checks: {
+            replace: {
+                // Allow the entire url to be pasted, to extract the name from it.
+                pattern: /https?:\/\/meet.jit.si\/(.*)/,
+                replace: "$1"
+            }
+        }
     }
 };
 
@@ -153,6 +171,17 @@ const validators = {
      */
     defaultAppRequired(value) {
         return value !== "";
+    },
+
+    /**
+     * Checks if a value matches a regular expression.
+     * @param {String} value The field value to check.
+     * @param {Object} options The validation block.
+     * @param {RegExp} options.pattern The pattern to match.
+     * @return {Boolean} true if the field matches the regular expression.
+     */
+    regex(value, options) {
+        return options.pattern.test(value);
     },
 
     /**
@@ -209,7 +238,15 @@ const validators = {
  * @type {Object<String,checkFunc>}
  */
 const checks = {
-    urlWorking: (value, barItem, paramKey) => checkUrl(value)
+    urlWorking: (value, options, barItem, paramKey) => checkUrl(value),
+    replace: (value, options, barItem, paramKey) => {
+        /** @type {CheckResult} */
+        const result = {
+            value: value,
+            newValue: value.replace(options.pattern, options.replace)
+        };
+        return Promise.resolve(result);
+    }
 };
 
 /**
@@ -411,19 +448,24 @@ export function getValidationError(button, paramKey) {
 
         if (validate && paramInfo.validation) {
             Object.keys(paramInfo.validation).every(key => {
+                // If the validation block is just a string, use it as the error message.
+                let options = paramInfo.validation[key];
+                if (typeof(options) === "string") {
+                    options = {message: options};
+                }
+
                 const validator = validators[key];
                 var ok = false;
                 if (validator) {
                     if (typeof(validator) === "function") {
-                        ok = validator(value, button);
+                        ok = validator(value, options, button);
                     } else if (validator instanceof RegExp) {
                         ok = validator.test(value);
                     }
                 }
 
                 if (!ok) {
-                    var v = paramInfo.validation[key];
-                    errorMessage = (typeof(v) === "string") ? v : v.message || "error";
+                    errorMessage = options.message || "error";
                 }
                 return ok;
             });
@@ -546,7 +588,8 @@ export function checkForProblems(button, paramKey, live) {
                     // Perform the check.
                     const checkFunc = checks[key];
                     if (checkFunc) {
-                        checkPromise = checkFunc(value, button, paramKey);
+                        const checkOptions = paramInfo.checks[key];
+                        checkPromise = checkFunc(value, checkOptions, button, paramKey);
                     } else {
                         checkPromise = Promise.reject(new Error(`No check function named ${key}`));
                     }
