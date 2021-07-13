@@ -163,14 +163,14 @@ export default {
             this.showCatalog(false);
             this.onBarChanged();
 
+            // Show the edit dialog if it has parameters, a placeholder, or has errors.
             let showEdit;
-            if (barItem.data.isPlaceholder) {
-                showEdit = true;
+            if (barItem.data.showEdit === undefined) {
+                showEdit = barItem.data.paramFields.length > 1 || barItem.data.isPlaceholder || barItem.data.hasError;
             } else {
-                showEdit = barItem.data.hasError;
+                showEdit = barItem.data.showEdit;
             }
 
-            // Edit the button, if it has parameterised fields.
             if (showEdit) {
                 this.showEditDialog(barItem);
             }

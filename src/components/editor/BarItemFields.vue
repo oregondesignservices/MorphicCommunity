@@ -4,7 +4,7 @@
     <div v-if="allParameters[paramKey].isApplicable(barItem)"
          :key="paramKey"
          role="group" class="mb-3">
-      <b-form-group :label="allParameters[paramKey].label"
+      <b-form-group :label="(allParameters[paramKey].type !== 'checkbox') && allParameters[paramKey].label"
                     :label-for="'barItem_' + paramKey"
                     :class="{
                         checking: isChecking[paramKey] && validationStates[paramKey] === null
@@ -21,9 +21,15 @@
                      :state="validationStates[paramKey]"
                      :autofocus="autofocus && !index"
                      :disabled="!allParameters[paramKey].isEnabled(barItem)"
+                     :value="allParameters[paramKey].values && allParameters[paramKey].values[1]"
+                     :unchecked-value="allParameters[paramKey].values && allParameters[paramKey].values[0]"
                      v-bind="allParameters[paramKey].attrs"
                      @blur="validate(paramKey)"
-          />
+          >
+            <template v-if="allParameters[paramKey].type === 'checkbox'">
+              {{ allParameters[paramKey].label }}
+            </template>
+          </component>
       </b-form-group>
     </div>
   </template>
@@ -64,6 +70,12 @@
 
 import * as params from "@/utils/params";
 
+const componentMap = {
+    text: "b-form-input",
+    select: "b-form-select",
+    checkbox: "b-form-checkbox"
+};
+
 export default {
     name: "BarItemFields",
     components: {},
@@ -93,7 +105,9 @@ export default {
             validationErrors: errors,
             checkTimers: {},
             isChecking: checking,
-            lastValues: {}
+            lastValues: {},
+            /** @type {Object<String,String>} */
+            values: {}
         };
     },
     methods: {
@@ -103,8 +117,8 @@ export default {
          * @return {Boolean} true if the field should be validated.
          */
         validationRequired: function (paramKey) {
-            return this.allParameters[paramKey].isEnabled(this.barItem) &&
-                this.allParameters[paramKey].isApplicable(this.barItem);
+            const param = this.allParameters[paramKey];
+            return param.type !== "checkbox" && param.isEnabled(this.barItem) && param.isApplicable(this.barItem);
         },
 
         /**
@@ -113,7 +127,7 @@ export default {
          * @return {String} The HTML tag name.
          */
         getFieldTag: function (paramInfo) {
-            return paramInfo.selectOptions ? "b-form-select" : "b-form-input";
+            return componentMap[paramInfo.type];
         },
 
         /**
@@ -151,6 +165,8 @@ export default {
                 } else {
                     this.validationStates[paramKey] = true;
                 }
+            } else {
+                this.validationStates[paramKey] = null;
             }
         },
 

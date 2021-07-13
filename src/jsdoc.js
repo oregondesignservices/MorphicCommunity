@@ -66,6 +66,7 @@
  * @property {String} subkind The item category (email, news).
  * @property {Boolean} [isPlaceholder] true if this button is a place-holder, where the site has not been chosen.
  * @property {Boolean} [isExpander] true if this item is used in the catalog to show the secondary items.
+ * @property {Boolean} [showEdit] true/false to always/never show the editor dialog when the item is added.
  * @property {Boolean} catalogItem true if this instance is in the catalog (not added to the bar)
  * @property {String} catalogLabel Label in the catalog (if different to `label`).
  * @property {String} category Category in the catalog
