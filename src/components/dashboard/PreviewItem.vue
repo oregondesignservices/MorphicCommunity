@@ -13,15 +13,15 @@
         <div class="buttons" style="margin-top: 5px;">
           <span v-for="(button, index) in item.data.visual.buttons" v-bind:key="index"
                   class="rounded multiButton"
-                  :style="'background: '+colors.default_button"
+                  :style="'background: ' + defaultColor"
                   v-bind:class="{ 'extraBig': item.data.visual.extraBig}">
           </span>
         </div>
       </div>
-      <div v-else-if="noImage" class="noImage" :style="'background: '+colors.default_button">
+      <div v-else-if="noImage" class="noImage" :style="'background: ' + defaultColor">
       </div>
-      <div v-else class="regular" :style="'background: '+colors.default_button">
-        <div class="imageContainer" :style="'border-color: '+colors.default_button">
+      <div v-else class="regular" :style="'background: ' + defaultColor">
+        <div class="imageContainer" :style="'border-color: ' + defaultColor">
           <b-img :src="getIconUrl(item.configuration.image_url)" :alt="item.configuration.label + ' logo'"></b-img>
         </div>
       </div>
@@ -32,7 +32,7 @@
       <label>{{ item.configuration.label }}</label>
       <div class="buttons">
         <button v-for="(button, index) in item.data.visual.buttons" v-bind:key="index"
-                :style="'background: '+colors.default_button + '; background-color: ' + (item.configuration.color || colors.default_button) + ';'"
+                :style="'background: ' + defaultColor + '; background-color: ' + (item.configuration.color || defaultColor) + ';'"
                 v-bind:class="{ 'extraBig': item.data.visual.extraBig}"
                 tabindex="-1">
           {{ button }}
@@ -43,11 +43,11 @@
     <!-- Normal button with/without image -->
     <template v-else>
       <div v-if="item.configuration.image_url && !noImage"
-           :style="'border-color: ' + (item.configuration.color || colors.default_button) + '; color: ' + (item.configuration.color || colors.default_button) + ';'"
+           :style="'border-color: ' + (item.configuration.color || defaultColor) + '; color: ' + (item.configuration.color || defaultColor) + ';'"
            class="iconHolder">
         <b-img :src="getIconUrl(item.configuration.image_url)" :alt="item.configuration.label + ' logo'"/>
       </div>
-      <b :style="'background-color: ' + (item.configuration.color || colors.default_button) + ';'"
+      <b :style="'background-color: ' + (item.configuration.color || defaultColor) + ';'"
          v-bind:class="{ withImage: !noImage && item.configuration.image_url }">{{ item.configuration.label }}</b>
     </template>
 
@@ -236,6 +236,7 @@ export default {
     data() {
         return {
             colors: colors,
+            defaultColor: colors.blue,
             icons: icons
         };
     },

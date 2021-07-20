@@ -97,73 +97,71 @@
                 <b-form-select id="barItem_position" v-model="selectedPosition" :options="positionOptions" />
               </b-form-group>
 
-              <div v-if="!isLite" class="bg-silver rounded p-3">
-                <p v-if="showExtra" class="text-right small mb-0">
-                  (<b-link @click="showExtra = false">Hide</b-link>)
-                </p>
-                <p v-else class="small">
-                  Optional: <b-link @click="showExtra = true">Customize the button (color &amp; picture)</b-link>
-                </p>
-                <div v-if="showExtra">
-                  <h6><b>Color for button</b></h6>
-                  <div class="bg-white rounded p-3 mb-4">
-                    <div
-                            v-for="(hex, name) in colors"
-                            :key="name"
-                            @click="changeColor(hex)"
-                            :title="name"
-                            :class="{ active: (button.configuration.color || colors.blue) === hex }"
-                            class="colorBoxHolder"
-                    >
-                      <div :style="'background-color: ' + hex + ';'" class="colorBox"></div>
-                    </div>
+              <div v-if="!isLite"
+                   class="secondaryFields bg-silver rounded"
+              >
+
+                <!-- colour selection -->
+                <b-form-group label="Color for button"
+                              label-for="ColorSelection">
+                  <b-form-radio-group id="ColorSelection"
+                                      class="colorSelection"
+                                      v-model="button.configuration.color"
+                                      plain>
+                    <b-form-radio v-for="(hex, name) in colors"
+                                  :key="name"
+                                  :value="hex"
+                                  class="customRadio colorRadio">
+                      <span class="screenReader">{{name}}</span>
+                      <div class="colorBlock" :style="'background-color: ' + hex + ';'" />
+                    </b-form-radio>
+                  </b-form-radio-group>
+                </b-form-group>
+
+                <!-- icon selection -->
+                <div class="buttonIcons">
+                  <div class="actionButtons">
+                    <b-button variant="invert-morphic-blue"
+                              size="sm"
+                              :disabled="!selectedIcon && !showImages"
+                              @click="selectedIcon = null, showImages = false">Remove button image</b-button>
+                    <b-button variant="invert-morphic-blue"
+                              size="sm"
+                              :disabled="showImages"
+                              @click="showImages = true">{{ selectedIcon ? "Change button image" : "Add button image"}}</b-button>
                   </div>
 
-                  <h6><b>Picture for button</b></h6>
-                  <div class="bg-white rounded p-3 compactIconHolder">
-                    <!-- no image -->
-                    <div class="iconBoxHolder" :class="{ active: (!button.configuration.image_url) }">
-                      <div
-                              @click="changeIcon('')"
-                              :style="'border-color: ' + (button.configuration.color || colors.blue) + ';'"
-                              class="iconBox"
-                      >
-                        <p>No image</p>
-                      </div>
-                    </div>
+                  <b-form-group v-if="showImages"
+                                label="Image for button"
+                                label-for="ImageSelection">
+                    <b-form-radio-group id="ImageSelection"
+                                        class="imageSelection"
+                                        v-model="selectedIcon"
+                                        plain>
+                      <b-form-radio v-for="(filename, icon) in listedIcons" xxv-if="icon !== '$favicon' || buttonFavicon"
+                                    :key="icon"
+                                    :value="icon"
+                                    class="customRadio iconRadio">
+                        <div>
+                          <span v-if="icon === ''">No image</span>
+                          <b-img v-else-if="icon === '$favicon'" :src="filename"/>
+                          <b-img v-else :src="getIconUrl(icon)"/>
+                        </div>
+                      </b-form-radio>
 
-                    <!-- favicon -->
-                    <div v-if="buttonFavicon" class="iconBoxHolder" :class="{ active: (button.configuration.favicon) }">
-                      <div
-                              @click="changeIcon('$favicon')"
-                              :style="'border-color: ' + (button.configuration.color || colors.blue) + ';'"
-                              class="iconBox"
-                      >
-                        <b-img :src="buttonFavicon" :style="'color: ' + (button.configuration.color || colors.blue) + ';'"/>
-                      </div>
-                    </div>
+                    </b-form-radio-group>
+                  </b-form-group>
 
-                    <div v-for="(filename, icon) in listedIcons"
-                         :key="icon"
-                         @click="changeIcon(icon)"
-                         :class="{ active: button.configuration.image_url === icon }"
-                         class="iconBoxHolder"
-                    >
-                      <div :style="'border-color: ' + (button.configuration.color || colors.blue) + ';'" class="iconBox">
-                        <b-img :src="getIconUrl(icon)" :style="'color: ' + (button.configuration.color || colors.blue) + ';'"/>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
           </b-col>
 
           <b-col v-if="!isLite" md="6">
-            <div class="max-height bg-silver rounded p-3 text-center">
+            <div class="sticky-top bg-silver rounded p-3 text-center">
               <p class="">This is the button you are making</p>
               <div class="barPreview rounded">
-                <div class="previewHolder">
+                <div class="previewHolder" :aria-description="'Preview of button with ' + (selectedIcon ? 'image' : 'no image') ">
                   <PreviewItem :item="button" />
                 </div>
               </div>
@@ -178,6 +176,8 @@
 </template>
 
 <style lang="scss">
+
+@import "~@/styles/bootstrap-util";
 
 .relatedSelection {
   .dropdown-menu {
@@ -246,58 +246,99 @@ ul.relatedButtons {
   }
 }
 
-.compactIconHolder {
-  height: 22rem;
-  overflow-y: auto;
-  .iconBoxHolder {
-    margin-left: .5rem !important;
-  }
-}
+.secondaryFields {
+  padding: 1em;
+  margin: 0 -0.5em;
 
-.colorBoxHolder {
-  display: inline-block;
-  cursor: pointer;
-  margin: 0 .25rem;
-  width: 2.6rem;
-  height: 2.6rem;
-  .colorBox {
-    width: 2rem;
-    height: 2rem;
+  & > .form-group > label {
+    margin-left: -0.25em;
   }
-}
 
-.iconBoxHolder {
-  display: inline-block;
-  cursor: pointer;
-  width: 5.25rem;
-  height: 5.25rem;
-  margin: .75rem 0 .75rem .75rem;
-  .iconBox {
-    background: white;
-    border: 1px solid black;
-    border-radius: 100%;
-    padding: .75rem;
-    width: 4.5rem;
-    height: 4.5rem;
-    text-align: center;
-    img {
-      width: 3rem;
-      height: 3rem;
+  .colorSelection {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    justify-items: center;
+
+    background-color: white;
+    padding: 0.5em 0.25em;
+  }
+
+  .customRadio {
+    display: inline;
+
+    label {
+      cursor: pointer;
+      border: 3px solid transparent;
+      padding: 2px;
     }
-    p {
-      width: 3rem;
-      height: 3rem;
-      line-height: 100%;
-      margin: 0;
+
+    input:checked + label {
+      border-color: green;
+    }
+
+    input:focus-visible + label {
+      border-style: dashed;
+    }
+
+    &.colorRadio {
+      margin: 5px 0;
+
+      label {
+        width: 2.5em;
+        height: 2.5em;
+
+        .colorBlock {
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+
+    &.iconRadio {
+      margin: 5px 5px;
+
+      label {
+        width: 5.5em;
+        height: 5.5em;
+
+
+        & > * {
+          position: relative;
+          width: 100%;
+          height: 100%;
+
+          border: 1px solid black;
+          border-radius: 100%;
+          & > * {
+            position: absolute;
+            width: 60%;
+            max-height: 60%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            font-size: 14px;
+            text-align: center;
+          }
+        }
+      }
     }
   }
-}
 
-.colorBoxHolder, .iconBoxHolder {
-  padding: .3rem;
-  &.active {
-    padding: .1rem;
-    border: .2rem solid green;
+  .buttonIcons {
+    .actionButtons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1em;
+    }
+
+    .imageSelection {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+
+      background-color: white;
+    }
   }
 }
 
@@ -310,12 +351,20 @@ ul.relatedButtons {
 
 <script>
 import PreviewItem from "@/components/dashboard/PreviewItem";
-import { buttonCatalog, colors, defaultIcons, groupedButtons, groupedIcons, icons, allButtons } from "@/utils/constants";
+import {
+    allButtons,
+    buttonCatalog,
+    colors,
+    defaultIcons,
+    groupedButtons,
+    groupedIcons,
+    icons
+} from "@/utils/constants";
 import * as params from "@/utils/params";
 import * as Bar from "@/utils/bar";
 import BarItemFields from "@/components/editor/BarItemFields";
 import { CONFIG } from "@/config/config";
-import {dialogMixin} from "@/mixins/dialog.js";
+import { dialogMixin } from "@/mixins/dialog.js";
 
 export default {
     name: "EditButtonDialog",
@@ -343,7 +392,6 @@ export default {
              * @type {BarItem}
              */
             button: null,
-            showExtra: false,
 
             dialogClosed: null,
 
@@ -364,6 +412,9 @@ export default {
              */
             knownFavicons: {},
 
+            // The key of the selected icon
+            selectedIcon: null,
+
             fieldChanged: 0,
 
             relatedDropdownStyle: null,
@@ -372,7 +423,10 @@ export default {
             wasPlaceholder: false,
 
             selectedPosition: null,
-            originalPosition: null
+            originalPosition: null,
+
+            // true to show the images, even if there is no image selected
+            showImages: false
 
         };
     },
@@ -418,6 +472,14 @@ export default {
             iconKeys.push.apply(iconKeys, groupedIcons.generic);
 
             const togo = {};
+
+            // Add a placeholder for no image
+            togo[""] = "";
+
+            if (this.buttonFavicon) {
+                togo.$favicon = this.buttonFavicon;
+            }
+
             if (defaultIcon) {
                 togo[defaultIcon] = icons[defaultIcon];
             }
@@ -493,18 +555,16 @@ export default {
 
             let found = false;
             Object.keys(this.colors).forEach(color => {
-                if (color !== "default_button") {
-                    const hex = this.colors[color];
+                const hex = this.colors[color];
 
-                    if (hex === this.button.configuration.color) {
-                        found = true;
-                    }
-
-                    options.push({
-                        value: hex,
-                        text: this.$t(`EditButtonDialog.color.${color}`)
-                    });
+                if (hex === this.button.configuration.color) {
+                    found = true;
                 }
+
+                options.push({
+                    value: hex,
+                    text: this.$t(`EditButtonDialog.color.${color}`)
+                });
             });
 
             // If the button has another colour (if a custom colour selection is implemented), add it to the list.
@@ -520,9 +580,6 @@ export default {
     },
 
     methods: {
-        changeColor: function (hex) {
-            this.button.configuration.color = hex;
-        },
         changeIcon: function (icon) {
             this.button.configuration.favicon = (icon === "$favicon");
 
@@ -533,6 +590,8 @@ export default {
             } else {
                 this.button.configuration.image_url = icon;
             }
+
+            this.selectedIcon = icon;
         },
 
         /**
@@ -635,6 +694,9 @@ export default {
                 this.originalPosition = this.bar.items.findIndex(item => item.id === this.selectedItem.id);
                 this.selectedPosition = this.originalPosition;
             }
+
+            this.selectedIcon = this.button.configuration.favicon ? "$favicon" : this.button.configuration.image_url;
+            this.showImages = false;
 
             this.fixFavicon();
             this.$bvModal.show("modalEditGeneric");
@@ -750,6 +812,9 @@ export default {
                 }
             },
             deep: true
+        },
+        selectedIcon: function (newValue) {
+            this.changeIcon(newValue);
         }
     }
 };
