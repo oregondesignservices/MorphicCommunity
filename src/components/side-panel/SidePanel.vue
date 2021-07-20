@@ -396,7 +396,7 @@ export default {
          * @return {Promise<BarDetails>} Resolves when the new bar has been created.
          */
         async createBar(member, name) {
-            let barName = name || (member ? member.fullName : undefined);
+            let barName = name || (member ? `Bar for ${member.fullName}` : undefined);
             if (barName === "(no name)") {
                 barName = "My MorphicBar";
             }
@@ -437,7 +437,7 @@ export default {
             const member = addResult.data.member;
 
             // Create a new bar for the member
-            const bar = await this.createBar(member, `Bar for ${member.fullName}`);
+            const bar = await this.createBar(member);
 
             this.newestMemberId = member.id;
             this.reloadAll();
